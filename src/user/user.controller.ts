@@ -6,6 +6,7 @@ import {
   Put,
   Body,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 
 import { UserService } from './user.service';
@@ -22,18 +23,25 @@ export class UserController {
 
   // GET ALL USER
   @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('SUPER_ADMIN', 'PETUGAS')
+  @Roles('SUPER_ADMIN', 'PETUGAS')
   @Get()
   findAll() {
     return this.userService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN')
+  @Get('admin/all')
+  findAllAdmin() {
+    return this.userService.findAllAdmin();
   }
 
   // GET USER BY ID
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPER_ADMIN')
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(Number(id));
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findOne(id);
   }
 
   // UPDATE USER
@@ -41,30 +49,17 @@ export class UserController {
   @Roles('SUPER_ADMIN')
   @Put(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: any,
   ) {
-    return this.userService.update(
-      Number(id),
-      dto,
-    );
+    return this.userService.update(id, dto);
   }
 
   // DELETE USER
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPER_ADMIN')
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(
-      Number(id),
-    );
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.remove(id);
   }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('SUPER_ADMIN')
-@Get('admin/all')
-findAllAdmin() {
-  return this.userService.findAllAdmin();
-}
-
 }

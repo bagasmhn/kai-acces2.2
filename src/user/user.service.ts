@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -36,7 +39,7 @@ export class UserService {
 
   // GET USER BY ID
   async findOne(id: number) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
         id: true,
@@ -47,6 +50,14 @@ export class UserService {
         createdAt: true,
       },
     });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User tidak ditemukan',
+      );
+    }
+
+    return user;
   }
 
   // GET ALL PEMBELI
@@ -85,6 +96,8 @@ export class UserService {
 
   // UPDATE USER
   async update(id: number, data: any) {
+    await this.findOne(id);
+
     return this.prisma.user.update({
       where: { id },
       data,
@@ -93,6 +106,8 @@ export class UserService {
 
   // DELETE USER
   async remove(id: number) {
+    await this.findOne(id);
+
     return this.prisma.user.delete({
       where: { id },
     });
