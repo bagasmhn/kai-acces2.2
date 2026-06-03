@@ -1,5 +1,6 @@
 import {
   Injectable,
+  BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
 
@@ -62,6 +63,19 @@ export class KursiService {
   // DELETE
   async remove(id: number) {
     await this.findOne(id);
+
+    const detailBookingCount =
+      await this.prisma.detailBooking.count({
+        where: {
+          kursiId: id,
+        },
+      });
+
+    if (detailBookingCount > 0) {
+      throw new BadRequestException(
+        'Kursi tidak bisa dihapus karena sudah dipakai pada booking',
+      );
+    }
 
     return this.prisma.kursi.delete({
       where: { id },

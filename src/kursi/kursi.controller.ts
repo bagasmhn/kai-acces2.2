@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 
 import { KursiService } from './kursi.service';
@@ -41,8 +42,8 @@ export class KursiController {
 
   // GET BY ID
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.kursiService.findOne(Number(id));
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.kursiService.findOne(id);
   }
 
   // UPDATE
@@ -51,10 +52,10 @@ export class KursiController {
  @Roles('SUPER_ADMIN', 'PETUGAS')
   @Put(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateKursiDto,
   ) {
-    return this.kursiService.update(Number(id), dto);
+    return this.kursiService.update(id, dto);
   }
 
   // DELETE
@@ -62,7 +63,7 @@ export class KursiController {
   @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('SUPER_ADMIN', 'PETUGAS')
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.kursiService.remove(Number(id));
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.kursiService.remove(id);
   }
 }
